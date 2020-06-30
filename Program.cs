@@ -69,10 +69,41 @@ namespace SFDCtoD365ExcelWrapper
                 NewFieldsWorksheet.Cells[rowNumber, 7] = GetDynamicsRequired(dtRow["IsRequired"].ToString()); // field type
 
                 // Special Set Up based on Type
-                if (dtRow["Type"].ToString() == "STRING")
+                if (dtRow["Type"].ToString() == "STRING" || dtRow["Type"].ToString() == "TEXTAREA")
                 {
+                    var lenght = int.Parse(dtRow["Length"].ToString());
+
                     NewFieldsWorksheet.Cells[rowNumber, 12] = dtRow["Length"].ToString(); // If text - Lenght
                     NewFieldsWorksheet.Cells[rowNumber, 13] = "Text";
+
+                    if(lenght > 200 && lenght <501) // Add Format text area
+                    NewFieldsWorksheet.Cells[rowNumber, 13] = "Text Area";
+
+                    if(lenght > 500) // For tet areas greater than 500
+                    NewFieldsWorksheet.Cells[rowNumber, 4] = "Multiple lines of text";
+  
+                }
+
+                if (dtRow["Type"].ToString() == "PHONE" )
+                {
+                    NewFieldsWorksheet.Cells[rowNumber, 12] = dtRow["Length"].ToString(); // If text - Lenght
+                    NewFieldsWorksheet.Cells[rowNumber, 13] = "Phone";
+                }
+
+                  if (dtRow["Type"].ToString() == "EMAIL" )
+                {
+                    NewFieldsWorksheet.Cells[rowNumber, 12] = dtRow["Length"].ToString(); // If text - Lenght
+                    NewFieldsWorksheet.Cells[rowNumber, 13] = "Email";
+                }
+
+                if (dtRow["Type"].ToString() == "DATE" )
+                {
+                    NewFieldsWorksheet.Cells[rowNumber, 40] = "Date Only";
+                }
+
+                  if (dtRow["Type"].ToString() == "DATETIME" )
+                {
+                    NewFieldsWorksheet.Cells[rowNumber, 40] = "Date and Time";
                 }
 
                 rowNumber++;
@@ -121,8 +152,18 @@ namespace SFDCtoD365ExcelWrapper
 
         private static string GetDynamicsType(string Salestype)
         {
-            if (Salestype == "STRING")
+            if (Salestype == "STRING" || Salestype == "TEXTAREA")
                 return "Single line of text";
+
+             if (Salestype == "PHONE")
+                return "Single line of text";
+
+              if (Salestype == "EMAIL")
+                return "Single line of text";
+
+            if (Salestype == "DATE" || Salestype == "DATETIME")
+                return "Date and time";
+             
 
             return "";
         }
