@@ -96,15 +96,39 @@ namespace SFDCtoD365ExcelWrapper
                     NewFieldsWorksheet.Cells[rowNumber, 13] = "Email";
                 }
 
-                if (dtRow["Type"].ToString() == "DATE" )
+                    if (dtRow["Type"].ToString() == "URL" )
                 {
-                    NewFieldsWorksheet.Cells[rowNumber, 40] = "Date Only";
+                    NewFieldsWorksheet.Cells[rowNumber, 12] = dtRow["Length"].ToString(); // If text - Lenght
+                    NewFieldsWorksheet.Cells[rowNumber, 13] = "URL";
                 }
 
+                if (dtRow["Type"].ToString() == "DATE" )
+                    NewFieldsWorksheet.Cells[rowNumber, 40] = "Date Only";
+
                   if (dtRow["Type"].ToString() == "DATETIME" )
-                {
                     NewFieldsWorksheet.Cells[rowNumber, 40] = "Date and Time";
-                }
+                
+
+               if (dtRow["Type"].ToString() == "CURRENCY" )
+                        {
+                    NewFieldsWorksheet.Cells[rowNumber, 35] = "2";
+                         NewFieldsWorksheet.Cells[rowNumber, 36] = "-922337203685477";
+                         NewFieldsWorksheet.Cells[rowNumber, 37] = "922337203685477";
+                        }
+
+                 if (dtRow["Type"].ToString() == "DOUBLE" )
+                            {
+                    NewFieldsWorksheet.Cells[rowNumber, 27] = "2";
+                         NewFieldsWorksheet.Cells[rowNumber, 28] = "0";
+                         NewFieldsWorksheet.Cells[rowNumber, 29] = "1000000000";
+                        }
+               
+                   if (dtRow["Type"].ToString() == "PERCENT" )
+                            {
+                    NewFieldsWorksheet.Cells[rowNumber, 31] = "2";
+                         NewFieldsWorksheet.Cells[rowNumber, 32] = "-100000000000";
+                         NewFieldsWorksheet.Cells[rowNumber, 33] = "100000000000";
+                        }
 
                 rowNumber++;
             }
@@ -152,7 +176,7 @@ namespace SFDCtoD365ExcelWrapper
 
         private static string GetDynamicsType(string Salestype)
         {
-            if (Salestype == "STRING" || Salestype == "TEXTAREA")
+            if (Salestype == "STRING" || Salestype == "TEXTAREA" || Salestype == "URL")
                 return "Single line of text";
 
              if (Salestype == "PHONE")
@@ -163,7 +187,17 @@ namespace SFDCtoD365ExcelWrapper
 
             if (Salestype == "DATE" || Salestype == "DATETIME")
                 return "Date and time";
+
+             if (Salestype == "CURRENCY")
+                return "Money";
+
+                if (Salestype == "DOUBLE")
+                return "Float number";
              
+                 if (Salestype == "PERCENT")
+                return "Decimal number";
+             
+                
 
             return "";
         }
