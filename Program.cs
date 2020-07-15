@@ -61,8 +61,10 @@ namespace SFDCtoD365ExcelWrapper
 
             foreach (DataRow dtRow in dt.Rows)
             {
+                string salesforceType = dtRow["Type"].ToString();
+
                 //Common fields
-                NewFieldsWorksheet.Cells[rowNumber, 2] = dtRow["Label"].ToString(); // Label Name
+                    NewFieldsWorksheet.Cells[rowNumber, 2] = dtRow["Label"].ToString(); // Label Name
                 NewFieldsWorksheet.Cells[rowNumber, 3] = GetSchemaWithPrefix(dtRow["Label"].ToString());// schema
                 NewFieldsWorksheet.Cells[rowNumber, 4] = GetDynamicsType(dtRow["Type"].ToString()); // field type
                 NewFieldsWorksheet.Cells[rowNumber, 5] = Entity; // entity
@@ -130,8 +132,60 @@ namespace SFDCtoD365ExcelWrapper
                          NewFieldsWorksheet.Cells[rowNumber, 33] = "100000000000";
                         }
 
-                rowNumber++;
-            }
+                    if (dtRow["Type"].ToString() == "BOOLEAN")
+                    {
+
+                        NewFieldsWorksheet.Cells[rowNumber, 20].Style.WrapText = true;
+                        NewFieldsWorksheet.Cells[rowNumber, 20] = "0:False\r\n1:True";
+
+                    }
+
+                    if (dtRow["Type"].ToString() == "TIME")
+                        NewFieldsWorksheet.Cells[rowNumber, 23] = "Timezone";
+
+
+                    if (dtRow["Type"].ToString() == "PICKLIST" || dtRow["Type"].ToString() == "MULTIPICKLIST")
+                    {
+                        string[] stringSeparators = new string[] { "\r\n" };
+                        string linebreak = "\r\n";
+                        string optionlist = "";
+
+                        string[] list = dtRow["PicklistValues"].ToString().Split(stringSeparators, StringSplitOptions.None);
+
+                        int value = 100000000;
+                        foreach (string option in list)
+                        {
+                           
+                           string OptionLine = value.ToString() + ":"+option+ linebreak;
+
+                            value++;
+
+                            if(!string.IsNullOrEmpty(option))
+                            optionlist+= OptionLine;
+                            
+                        }
+
+                        NewFieldsWorksheet.Cells[rowNumber, 16].Style.WrapText = true;
+                        NewFieldsWorksheet.Cells[rowNumber, 16] = optionlist;
+                        NewFieldsWorksheet.Cells[rowNumber, 17] = "No";
+
+                    }
+
+                    if (salesforceType.Contains("REFERENCE"))
+                    {
+                        int initial = salesforceType.IndexOf("(") + 1;
+                        int end = salesforceType.IndexOf(")");
+                        string entityrelated = salesforceType.Substring(initial).Replace("__c)","");
+                        //string Cleanname = entityrelated.Replace("_", " ");
+                        entityrelated = entityrelated.Replace(")", "").ToLower();
+
+                        NewFieldsWorksheet.Cells[rowNumber, 42] = entityrelated;
+                        NewFieldsWorksheet.Cells[rowNumber, 48] = "10000";
+                    }
+
+                    rowNumber++;
+
+                }
 
             //// Disable file override confirmaton message  
             objXL.DisplayAlerts = false;
@@ -196,8 +250,21 @@ namespace SFDCtoD365ExcelWrapper
              
                  if (Salestype == "PERCENT")
                 return "Decimal number";
-             
-                
+
+            if (Salestype == "BOOLEAN")
+                return "Two options";
+
+            if (Salestype == "PICKLIST")
+                return "OptionSet";
+
+            if (Salestype == "MULTIPICKLIST")
+                return "Multiselect OptionSet";
+
+            if (Salestype == "TIME")
+                return "Whole number";
+
+            if (Salestype.Contains("REFERENCE"))
+                return "Lookup";
 
             return "";
         }
